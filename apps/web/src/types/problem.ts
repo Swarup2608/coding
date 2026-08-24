@@ -1,6 +1,6 @@
-export type Difficulty = "EASY" | "MEDIUM" | "HARD";
+import { Difficulty, Language, ProblemStatus } from "@coding-platform/shared";
 
-export type Language = "C" | "CPP" | "JAVA" | "PYTHON" | "JAVASCRIPT";
+export type { Difficulty, Language, ProblemStatus };
 
 export interface ProblemExample {
   input: string;
@@ -28,5 +28,5 @@ export interface Problem {
   starterCode: StarterCode;
   timeLimit: number;
   memoryLimit: number;
-  status: string;
+  status: ProblemStatus;
 }

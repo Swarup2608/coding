@@ -8,6 +8,9 @@ import { languages } from "@/lib/languages";
 import CodeEditor from "@/components/editor/CodeEditor";
 import LanguageSelector from "@/components/editor/LanguageSelector";
 import SubmissionResult from "@/components/editor/SubmissionResult";
+import Badge from "@/components/ui/Badge";
+import { difficultyTone } from "@/lib/badges";
+import { TERMINAL_SUBMISSION_STATUSES } from "@coding-platform/shared";
 
 export default function ProblemPage() {
   const params = useParams();
@@ -44,7 +47,15 @@ export default function ProblemPage() {
     setCode(problem.starterCode[config.starterKey]);
   }, [problem, language]);
 
+  async function runCode() {
+    await executeCode("RUN");
+  }
+
   async function submitCode() {
+    await executeCode("SUBMIT");
+  }
+
+  async function executeCode(mode: "RUN" | "SUBMIT") {
     if (!problem) {
       return;
     }
@@ -58,7 +69,7 @@ export default function ProblemPage() {
         data: { _id: string; status: string; passedTests: number; totalTests: number };
       }>("/submissions", {
         method: "POST",
-        body: JSON.stringify({ problemId: problem._id, language, code }),
+        body: JSON.stringify({ problemId: problem._id, language, code, mode }),
       });
 
       const submissionId = response.data._id;
@@ -78,9 +89,7 @@ export default function ProblemPage() {
       const submission = response.data;
       setResult(submission);
 
-      const finishedStatuses = ["ACCEPTED", "WRONG_ANSWER", "TIME_LIMIT", "MEMORY_LIMIT", "RUNTIME_ERROR", "COMPILE_ERROR", "SYSTEM_ERROR"];
-
-      if (finishedStatuses.includes(submission.status)) {
+      if ((TERMINAL_SUBMISSION_STATUSES as readonly string[]).includes(submission.status)) {
         return;
       }
 
@@ -89,51 +98,76 @@ export default function ProblemPage() {
   }
 
   if (loading) {
-    return <main className="p-10">Loading...</main>;
+    return <main className="p-10 text-fg-muted">Loading...</main>;
   }
 
   if (!problem) {
-    return <main className="p-10">Problem not found</main>;
+    return <main className="p-10 text-fg-muted">Problem not found</main>;
   }
 
   const config = languages[language];
 
   return (
-    <main className="h-screen">
+    <main className="min-h-0 flex-1 bg-page">
       <div className="grid h-full grid-cols-2">
         {/* Problem */}
-        <section className="overflow-auto border-r p-8">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">{problem.title}</h1>
-            <span className="mt-2 inline-block">{problem.difficulty}</span>
+        <section className="overflow-auto border-r border-border bg-surface p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <h1 className="text-2xl font-bold">{problem.title}</h1>
+            <Badge tone={difficultyTone(problem.difficulty)}>{problem.difficulty}</Badge>
           </div>
-          <div className="prose max-w-none">
-            <p>{problem.description}</p>
-            <h2>Examples</h2>
+
+          <div className="mb-6 flex flex-wrap gap-2">
+            {problem.tags.map((tag) => (
+              <span key={tag} className="rounded bg-surface-hover px-2 py-1 text-xs text-fg-muted">{tag}</span>
+            ))}
+          </div>
+
+          <p className="whitespace-pre-line leading-relaxed text-fg">{problem.description}</p>
+
+          <h2 className="mb-3 mt-8 text-lg font-semibold">Examples</h2>
+          <div className="space-y-4">
             {problem.examples.map((example, index) => (
-              <div key={index} className="mb-4 rounded bg-gray-100 p-4">
-                <p><strong>Input:</strong></p>
-                <pre>{example.input}</pre>
-                <p><strong>Output:</strong></p>
-                <pre>{example.output}</pre>
-                {example.explanation && <p>{example.explanation}</p>}
+              <div key={index} className="rounded-lg border border-border bg-page p-4 text-sm">
+                <p className="mb-1 font-semibold text-fg-muted">Example {index + 1}</p>
+                <p className="mt-2 font-medium">Input:</p>
+                <pre className="mt-1 overflow-auto rounded bg-surface-hover p-2 font-mono">{example.input}</pre>
+                <p className="mt-2 font-medium">Output:</p>
+                <pre className="mt-1 overflow-auto rounded bg-surface-hover p-2 font-mono">{example.output}</pre>
+                {example.explanation && <p className="mt-2 text-fg-muted">{example.explanation}</p>}
               </div>
             ))}
-            <h2>Constraints</h2>
-            <ul>
-              {problem.constraints.map((constraint) => (
-                <li key={constraint}>{constraint}</li>
-              ))}
-            </ul>
           </div>
+
+          {problem.constraints.length > 0 && (
+            <>
+              <h2 className="mb-3 mt-8 text-lg font-semibold">Constraints</h2>
+              <ul className="list-inside list-disc space-y-1 text-sm text-fg-muted">
+                {problem.constraints.map((constraint) => (
+                  <li key={constraint} className="font-mono">{constraint}</li>
+                ))}
+              </ul>
+            </>
+          )}
         </section>
 
         {/* Editor */}
-        <section className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b p-3">
+        <section className="flex h-full flex-col bg-page">
+          <div className="flex items-center justify-between border-b border-border bg-surface p-3">
             <LanguageSelector value={language} onChange={setLanguage} />
             <div className="flex gap-2">
-              <button onClick={submitCode} disabled={submitting} className="rounded bg-black px-5 py-2 text-white disabled:opacity-50">
+              <button
+                onClick={runCode}
+                disabled={submitting}
+                className="rounded-md border border-border px-5 py-2 font-medium transition-colors hover:bg-surface-hover disabled:opacity-50"
+              >
+                Run
+              </button>
+              <button
+                onClick={submitCode}
+                disabled={submitting}
+                className="rounded-md bg-accent px-5 py-2 font-medium text-accent-fg transition-colors hover:bg-accent-hover disabled:opacity-50"
+              >
                 {submitting ? "Running..." : "Submit"}
               </button>
             </div>
@@ -148,6 +182,7 @@ export default function ProblemPage() {
               totalTests={result.totalTests}
               runtimeMs={result.runtimeMs}
               errorMessage={result.errorMessage}
+              testResults={result.testResults}
             />
           )}
         </section>
