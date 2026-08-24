@@ -1,12 +1,3 @@
-<p align="center">
-  <img
-    src="docs/assets/coding-platform-logo-animated.svg"
-    alt="Coding Platform logo"
-    width="160"
-    height="160"
-  />
-</p>
-
 <h1 align="center">Coding Platform</h1>
 
 <p align="center">
@@ -42,7 +33,6 @@
 - [Project structure](#project-structure)
 - [System design notes (interview prep)](#system-design-notes-interview-prep)
 - [Known limitations](#known-limitations)
-- [Logo](#logo)
 - [License](#license)
 
 ## What this is
@@ -362,7 +352,6 @@ workers/
       config/     Judge resource limits
 packages/
   shared/         @coding-platform/shared — types & constants shared across all three runtimes
-docs/assets/      Logo source, motion spec, and animation recipe (see "Logo" below)
 ```
 
 ## System design notes (interview prep)
@@ -424,18 +413,6 @@ Worth naming proactively rather than having them found:
   judge and score the same code twice.
 - No per-user rate limiting on submissions or contest registration.
 - Leaderboard is recomputed from scratch on every request (see "System design notes" above).
-- Static PNG/animated GIF exports of the logo are not generated in this environment (`rsvg-convert`/
-  `ffmpeg` aren't installed here); the animated SVG and this spec are the delivered artifacts, and the
-  canonical SVG's frame-0 state is the reduced-motion-safe fallback.
-
-## Logo
-
-`docs/assets/coding-platform-logo.svg` is the canonical, static mark. `docs/assets/coding-platform-logo-motion.md`
-specifies its motion (a gentle checkmark scale-pulse synced with a blinking cursor, 2s seamless loop);
-`docs/assets/coding-platform-logo-animation.mjs` implements that spec as a frame-renderer (for a future
-PNG/GIF export pass); `docs/assets/coding-platform-logo-animated.svg` is a self-playing SMIL version of
-the same spec, used at the top of this README so the logo actually animates on GitHub without needing
-a raster export step.
 
 ## License
 
