@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" role="img" aria-label="Coding Platform mark: two code brackets around a checkmark, with a blinking cursor">
+  <title>Coding Platform mark</title>
+  <g id="mark">
+    <path id="bracket-left" d="M100,68 L46,120 L100,172" fill="none" stroke="#4f46e5" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path id="bracket-right" d="M140,68 L194,120 L140,172" fill="none" stroke="#4f46e5" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+    <path id="checkmark" d="M106,138 L118,150 L136,120" fill="none" stroke="#10b981" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect id="cursor" x="200" y="96" width="10" height="48" rx="4" fill="#4f46e5" fill-opacity="1"/>
+  </g>
+</svg>
