@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/worker.ts",
+    "prebuild": "pnpm --filter @coding-platform/shared build",
     "build": "tsc",
     "start": "node dist/worker.js"
   },
