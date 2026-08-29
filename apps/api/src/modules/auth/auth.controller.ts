@@ -27,7 +27,14 @@ export async function registerController(req: Request, res: Response) {
 
     return res.status(201).json({ success: true, data: { user } });
   } catch (error) {
-    return res.status(400).json({ success: false, message: (error as Error).message || "[UNKNOWN_ERROR] An unknown error occurred." });
+    console.error("Register failed:", error);
+
+    const message = (error as Error).message || "";
+    const isKnownError = /^\[[A-Z_]+\]/.test(message);
+
+    return res
+      .status(isKnownError ? 400 : 500)
+      .json({ success: false, message: isKnownError ? message : "[SERVER_ERROR] Something went wrong. Please try again." });
   }
 }
 
@@ -45,7 +52,14 @@ export async function loginController(req: Request, res: Response) {
 
     return res.status(200).json({ success: true, data: { user } });
   } catch (error) {
-    return res.status(401).json({ success: false, message: (error as Error).message || "[UNKNOWN_ERROR] An unknown error occurred." });
+    console.error("Login failed:", error);
+
+    const message = (error as Error).message || "";
+    const isKnownError = /^\[[A-Z_]+\]/.test(message);
+
+    return res
+      .status(isKnownError ? 401 : 500)
+      .json({ success: false, message: isKnownError ? message : "[SERVER_ERROR] Something went wrong. Please try again." });
   }
 }
 
